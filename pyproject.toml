@@ -10,5 +10,6 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "imagekitio>=5.8.0",
     "python-dotenv>=1.2.2",
+    "ruff>=0.16.1",
     "uvicorn[standard]>=0.52.1",
 ]
