@@ -1,14 +1,22 @@
+import os
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
 
+from dotenv import load_dotenv
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy import Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, relationship
 
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set in .env")
+
+
 
 
 class Base(DeclarativeBase):
@@ -51,9 +59,11 @@ async def get_async_session() -> AsyncGenerator[AsyncSession]:
         yield session
 
 
-async def get_user_db(session: AsyncSession = None):
-    if session is None:
-        async with async_session_maker() as db_session:
-            yield SQLAlchemyUserDatabase(db_session, User)
-    else:
-        yield SQLAlchemyUserDatabase(session, User)
+from fastapi import Depends
+
+# Module-level singleton for FastAPI dependency to avoid calling Depends() in defaults
+USER_DB_DEP = Depends(get_async_session)
+
+
+async def get_user_db(session: AsyncSession = USER_DB_DEP):
+    yield SQLAlchemyUserDatabase(session, User)
