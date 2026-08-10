@@ -1,10 +1,11 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, Path, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import Post, User, get_async_session
+from app.schemas import FeedResponse, MessageResponse, PostResponse
 from app.users import current_active_user
 
 router = APIRouter(tags=["posts"])
@@ -12,11 +13,33 @@ router = APIRouter(tags=["posts"])
 async_session_dep = Depends(get_async_session)
 current_user_dep = Depends(current_active_user)
 
+# Module-level constant for path parameter to avoid function call in default
+POST_DELETE_ID = Path(
+    ..., 
+    description="The unique UUID of the post to delete"
+)
 
-@router.post("/uploadposts")
+
+
+
+@router.post(
+    "/uploadposts",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a new post",
+    description="Creates and saves a new post authored by the currently authenticated user.",
+)
 async def upload_posts(
-    title: str = Form(...),
-    content: str = Form(...),
+    title: str = Form(
+        ...,
+        description="The title of the post to upload",
+        examples=["My First Post"],
+    ),
+    content: str = Form(
+        ...,
+        description="The text content body of the post",
+        examples=["Hello world! This is my post content."],
+    ),
     user: User = current_user_dep,
     session: AsyncSession = async_session_dep,
 ):
@@ -31,7 +54,12 @@ async def upload_posts(
     return post
 
 
-@router.get("/feed")
+@router.get(
+    "/feed",
+    response_model=FeedResponse,
+    summary="Get user posts feed",
+    description="Retrieves all posts sorted by creation date in descending order, marked with ownership flags for the requesting user.",
+)
 async def get_feed(
     session: AsyncSession = async_session_dep,
     user: User = current_user_dep,
@@ -54,9 +82,20 @@ async def get_feed(
     return {"posts": posts_data}
 
 
-@router.delete("/posts/{id}")
+@router.delete(
+    "/posts/{id}",
+    response_model=MessageResponse,
+    summary="Delete a post",
+    description="Deletes a post by its unique UUID. Only the author of the post is permitted to delete it.",
+    responses={
+        404: {"model": MessageResponse, "description": "Post not found"},
+        403: {"model": MessageResponse, "description": "Permission denied - post belongs to another user"},
+    },
+)
+
+
 async def delete_post(
-    id: uuid.UUID,
+    id: uuid.UUID = POST_DELETE_ID,
     session: AsyncSession = async_session_dep,
     user: User = current_user_dep,
 ):
