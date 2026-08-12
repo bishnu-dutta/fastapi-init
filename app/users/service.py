@@ -28,7 +28,7 @@ if not DATABASE_URL:
 async_engine = create_async_engine(DATABASE_URL, echo=False)
 
 # creating session factory
-async_session_local = async_sessionmaker(async_engine, expire_on_commit=False, class_=AsyncSession, autocommit=False, autoflush=False)
+async_session = async_sessionmaker(async_engine, expire_on_commit=False, class_=AsyncSession, autocommit=False, autoflush=False)
 
 # creating actual tables, base
 async def create_tables():
@@ -37,14 +37,14 @@ async def create_tables():
 
 
 # creating a local session for each request
-async def get_async_session() -> AsyncGenerator[AsyncSession]:
-    async with async_session_local() as session:
+async def async_session_local() -> AsyncGenerator[AsyncSession]:
+    async with async_session() as session:
         try:
             yield session
         finally:
             await session.close()
 
-async_session_dep = Depends(get_async_session)
+async_session_dep = Depends(async_session_local)
 
 
 async def create_user(data: CreateUserRequest, session: AsyncSession = async_session_dep):

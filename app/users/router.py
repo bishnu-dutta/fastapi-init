@@ -4,16 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .request import CreateUserRequest, UpdateUserRequest
 from .response import UserResponse
 from .service import (
+    async_session_local,
     create_user,
     delete_user,
     get_all_users,
-    get_async_session,
     get_user_by_id,
     update_user,
 )
 
 # creating a dependency for the session
-async_session_dep = Depends(get_async_session)
+async_session_dep = Depends(async_session_local)
 
 
 router = APIRouter(prefix="/users", tags=["users"])
