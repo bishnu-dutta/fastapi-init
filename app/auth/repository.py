@@ -11,4 +11,4 @@ async def find_by_email(username: str, session: AsyncSession) -> User | None:
             func.lower(User.email) == func.lower(username)
         )
     )
-    return results.scalar().first()
+    return results.scalars().first()

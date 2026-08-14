@@ -1,3 +1,4 @@
+from app.auth.service import hash_password
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -8,4 +9,6 @@ class PublicUserResponse(BaseModel):
     
 class PrivateUserResponse(PublicUserResponse):
     email: EmailStr
+
+
     

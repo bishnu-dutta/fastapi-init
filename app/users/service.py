@@ -14,6 +14,7 @@ from .repository import (
 from .request import CreateUserRequest, UpdateUserRequest
 
 from .helpers import async_session_dep
+from app.auth.helpers import CurrentUser
 
 
 
@@ -44,7 +45,12 @@ async def get_user_by_id(id: int, session: AsyncSession = async_session_dep):
     return user
 
 
-async def delete_user(id: int, session: AsyncSession = async_session_dep):
+async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession = async_session_dep):
+    if id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to delete this user",
+        )
     user = await delete_user_by_id(id, session)
     if not user:
         raise HTTPException(
@@ -54,7 +60,12 @@ async def delete_user(id: int, session: AsyncSession = async_session_dep):
     return user
 
 
-async def update_user(id: int, data: UpdateUserRequest, session: AsyncSession = async_session_dep):
+async def update_user(id: int, current_user: CurrentUser, data: UpdateUserRequest, session: AsyncSession = async_session_dep):
+    if id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to update this user",
+        )
     user = await update_user_by_id(id, data, session)
     if not user:
         raise HTTPException(

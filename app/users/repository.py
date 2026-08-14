@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
 from app.auth.service import hash_password
+from app.auth.helpers import CurrentUser
+
 
 
 async def save_user_to_database(data: CreateUserRequest, session: AsyncSession) -> User:
@@ -30,7 +32,7 @@ async def all_users(session: AsyncSession) -> list[User]:
 
 
 async def find_user_by_id(id: int, session: AsyncSession) -> User | None:
-    result = await session.execute(select(User).where(func.lower(User.id) == id.lower()))
+    result = await session.execute(select(User).where(User.id == id))
     return result.scalars().first()
 
 
@@ -49,6 +51,8 @@ async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSess
             user.username = data.username
         if data.email is not None:
             user.email = data.email
+        if data.password is not None:
+            user.hashed_password = hash_password(data.password)
         await session.commit()
         await session.refresh(user)
     return user

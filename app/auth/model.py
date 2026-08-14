@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Token(BaseModel):
-    access_type: str
+    access_token: str
     token_type: str
 
 

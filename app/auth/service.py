@@ -22,7 +22,7 @@ settings = Settings()
 password_hash = PasswordHash.recommended()
 
 # tokenURL has to match login endpoint, OAuth2PasswordBearer extract token from header. Also enable authorization block in docs
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 def hash_password(password:str) -> str:
     return password_hash.hash(password)
@@ -118,7 +118,10 @@ async def create_token(form_data: OAuth2PasswordRequestForm = Depends(),
     ) 
 
 
-async def get_current_auth_user(token, session):
+async def get_current_auth_user(
+    token: str = Depends(oauth2_scheme),
+    session: AsyncSession = async_session_dep
+    ):
     
     user_id = verify_access_token(token)
     if user_id is None:
@@ -136,6 +139,7 @@ async def get_current_auth_user(token, session):
             headers={"WWW-Authenticate": "Bearer"},
         )   
 
+    # db query need to resolve it later
     result = await session.execute(
         select(model.User).where(model.User.id == user_id_int)
     )

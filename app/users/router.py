@@ -12,6 +12,8 @@ from .service import (
 )
 
 from .helpers import async_session_local
+from app.auth.helpers import CurrentUser
+
 
 # creating a dependency for the session
 async_session_dep = Depends(async_session_local)
@@ -47,15 +49,17 @@ async def get_user_by_id_api(
 @router.delete("/{id}", response_model=PrivateUserResponse)
 async def delete_user_api(
     id: int,
+    current_user: CurrentUser,
     session: AsyncSession = async_session_dep,
 ):
-    return await delete_user(id, session)
+    return await delete_user(id, current_user, session)
 
 
 @router.put("/{id}", response_model=PrivateUserResponse)
 async def update_user_api(
     id: int,
     data: UpdateUserRequest,
+    current_user: CurrentUser,
     session: AsyncSession = async_session_dep,
 ):
-    return await update_user(id, data, session)
+    return await update_user(id, current_user, data, session)
