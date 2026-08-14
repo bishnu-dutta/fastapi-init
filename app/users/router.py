@@ -4,13 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .request import CreateUserRequest, UpdateUserRequest
 from .response import PrivateUserResponse, PublicUserResponse
 from .service import (
-    async_session_local,
     create_user,
     delete_user,
     get_all_users,
     get_user_by_id,
     update_user,
 )
+
+from .helpers import async_session_local
 
 # creating a dependency for the session
 async_session_dep = Depends(async_session_local)

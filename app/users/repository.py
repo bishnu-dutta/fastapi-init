@@ -1,25 +1,27 @@
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
-
-
-async def find_user_by_email(email: str, session: AsyncSession) -> User | None:
-    result = await session.execute(select(User).where(User.email == email))
-    return result.scalars().first()
+from app.auth.service import hash_password
 
 
 async def save_user_to_database(data: CreateUserRequest, session: AsyncSession) -> User:
     user = User(
         username=data.username,
-        email=data.email,
+        email=data.email.lower(),
+        hashed_password=hash_password(data.password),
     )
     session.add(user)
     await session.commit()
     await session.refresh(user)
     return user
+
+
+async def find_user_by_email(email: str, session: AsyncSession) -> User | None:
+    result = await session.execute(select(User).where(func.lower(User.email) == email.lower()))
+    return result.scalars().first()
 
 
 async def all_users(session: AsyncSession) -> list[User]:
@@ -28,7 +30,7 @@ async def all_users(session: AsyncSession) -> list[User]:
 
 
 async def find_user_by_id(id: int, session: AsyncSession) -> User | None:
-    result = await session.execute(select(User).where(User.id == id))
+    result = await session.execute(select(User).where(func.lower(User.id) == id.lower()))
     return result.scalars().first()
 
 
