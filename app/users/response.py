@@ -1,4 +1,3 @@
-from app.auth.service import hash_password
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 

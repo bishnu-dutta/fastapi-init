@@ -11,7 +11,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    # OAuth2PasswordRequstForm -> parses login form data and requires username
+    # OAuth2PasswordRequstForm -> parses login form data and requires username.
+    # oauth2_scheme use this POST /token to return token value from token db
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = async_session_dep,
 ):

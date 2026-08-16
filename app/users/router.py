@@ -11,12 +11,8 @@ from .service import (
     update_user,
 )
 
-from .helpers import async_session_local
+from .helpers import async_session_dep
 from app.auth.helpers import CurrentUser
-
-
-# creating a dependency for the session
-async_session_dep = Depends(async_session_local)
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -37,7 +33,7 @@ async def get_all_users_api(
     return await get_all_users(session)
 
 
-@router.get("/{id}", response_model=PrivateUserResponse)
+@router.get("/{id}", response_model=PublicUserResponse)
 async def get_user_by_id_api(
     id: int,
     session: AsyncSession = async_session_dep,

@@ -5,8 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
 from app.auth.service import hash_password
-from app.auth.helpers import CurrentUser
-
 
 
 async def save_user_to_database(data: CreateUserRequest, session: AsyncSession) -> User:
@@ -50,7 +48,8 @@ async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSess
         if data.username is not None:
             user.username = data.username
         if data.email is not None:
-            user.email = data.email
+            ''' if find_user_by_email(): return email already used  '''
+            user.email = data.email.lower()
         if data.password is not None:
             user.hashed_password = hash_password(data.password)
         await session.commit()

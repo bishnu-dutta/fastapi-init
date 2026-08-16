@@ -1,0 +1,19 @@
+from pydantic import EmailStr
+from pydantic import BaseModel, ConfigDict
+from datetime import datetime
+
+class PublicPostResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    title: str
+    content: str
+    owner_id : int
+    created_at: datetime 
+
+class PrivatePostResponse(PublicPostResponse):
+    model_config = ConfigDict(from_attributes=True)
+    author: EmailStr
+
+class UpdatePrivatePostResponse(PrivatePostResponse):
+    updated_at: datetime
+    
