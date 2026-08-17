@@ -16,5 +16,5 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
 
-    posts : Mapped[List["Post"]] = relationship("Post", back_populates="owner_id")
+    posts : Mapped[List["Post"]] = relationship("Post", back_populates="owner_id", cascade="all, delete-orphan")
     
