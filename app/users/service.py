@@ -43,13 +43,13 @@ async def get_user_by_id(id: int, session: AsyncSession):
     return user
 
 
-async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession):
-    if id != current_user.id:
+async def delete_user(current_user: CurrentUser,session: AsyncSession):
+    if not current_user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to delete this user",
         )
-    user = await delete_user_by_id(id, session)
+    user = await delete_user_by_id(current_user.id, session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -58,13 +58,13 @@ async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession):
     return user
 
 
-async def update_user(id: int, current_user: CurrentUser, data: UpdateUserRequest, session: AsyncSession):
-    if id != current_user.id:
+async def update_user(current_user: CurrentUser, data: UpdateUserRequest, session: AsyncSession):
+    if not current_user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to update this user",
         )
-    user = await update_user_by_id(id, data, session)
+    user = await update_user_by_id(current_user.id, data, session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

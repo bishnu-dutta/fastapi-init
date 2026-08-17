@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users import model
 from app.core.database import async_session_dep
-
 from app.core.config import Settings
 
 settings = Settings()
@@ -82,7 +81,7 @@ async def get_current_user(
     result = await session.execute(
         select(model.User).where(model.User.id == user_id_int)
     )
-    user = result.scalar_one_or_none()
+    user = result.scalars().first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -92,7 +91,8 @@ async def get_current_user(
     return user
 
 
-async def create_token(form_data: OAuth2PasswordRequestForm = Depends(),
+async def create_token(
+    form_data,
     session: AsyncSession = async_session_dep
     ):
     user = await find_by_username(form_data.username, session)
@@ -131,6 +131,8 @@ async def get_current_auth_user(
             headers={"WWW-Authenticate": "Bearer"},
         )   
     try:
+        # from verify_access_token it returns "sub" payload i.e user_id in string format 
+        # But sub is conventionally treated as a string identifier. Some JWT/auth libraries or integrations may expect it to be a string.
         user_id_int = int(user_id)
     except (ValueError, TypeError):
         raise HTTPException(

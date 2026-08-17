@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .request import CreateUserRequest, UpdateUserRequest
@@ -18,7 +18,12 @@ from app.auth.helpers import CurrentUser
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/create", response_model=PrivateUserResponse)
+@router.post("/create", 
+    response_model=PrivateUserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new user",
+    description="Create and saves a new user to database"
+)
 async def create_user_api(
     data: CreateUserRequest,
     session: AsyncSession = async_session_dep
@@ -26,14 +31,24 @@ async def create_user_api(
     return await create_user(data, session)
 
 
-@router.get("/all", response_model=list[PublicUserResponse])
+@router.get("/all", 
+    response_model=list[PublicUserResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Get all users",
+    description="Get all list of users from database(only public accessible data)"
+)
 async def get_all_users_api(
     session: AsyncSession = async_session_dep,
 ):
     return await get_all_users(session)
 
 
-@router.get("/{id}", response_model=PublicUserResponse)
+@router.get("/{id}", 
+    response_model=PublicUserResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get a user by id",
+    description="Get a user by id from database(only public accessible data)"
+)
 async def get_user_by_id_api(
     id: int,
     session: AsyncSession = async_session_dep,
@@ -42,20 +57,28 @@ async def get_user_by_id_api(
     return await get_user_by_id(id, session)
 
 
-@router.delete("/{id}", response_model=PrivateUserResponse)
+@router.delete("/delete", 
+    response_model=PrivateUserResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Delete current user",
+    description="Delete current user data from database(only the current authorised user can delete itself)"
+)
 async def delete_user_api(
-    id: int,
     current_user: CurrentUser,
     session: AsyncSession = async_session_dep,
 ):
-    return await delete_user(id, current_user, session)
+    return await delete_user(current_user, session)
 
 
-@router.put("/{id}", response_model=PrivateUserResponse)
+@router.put("/update", 
+    response_model=PrivateUserResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Update current user",
+    description="Update current user data from database(only the current authorised user can update itself)"
+)
 async def update_user_api(
-    id: int,
     data: UpdateUserRequest,
     current_user: CurrentUser,
     session: AsyncSession = async_session_dep,
 ):
-    return await update_user(id, current_user, data, session)
+    return await update_user(current_user, data, session)
