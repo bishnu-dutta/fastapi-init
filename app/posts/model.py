@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import relationship, DeclarativeBase
+from sqlalchemy.orm import Mapped, relationship
 from typing import TYPE_CHECKING
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
-from app.users.model import Base    
+from app.core.database import Base    
 
 if TYPE_CHECKING:
     from app.users.model import User
@@ -13,9 +12,8 @@ class Post(Base):
     title = Column(String, index=True)
     content = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), server_onupdate=func.now())
-
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     owner_id : Mapped["User"] = relationship("User", back_populates="posts")
 
     @property

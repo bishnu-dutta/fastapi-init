@@ -5,10 +5,10 @@ from app.users.model import User
 
 
 
-async def find_by_email(username: str, session: AsyncSession) -> User | None:
+async def find_by_username(username: str, session: AsyncSession) -> User | None:
     results = await session.execute(
         select(User).where(
-            func.lower(User.email) == func.lower(username)
+            func.lower(User.username) == func.lower(username)
         )
     )
     return results.scalars().first()

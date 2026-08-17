@@ -7,7 +7,7 @@ class PublicPostResponse(BaseModel):
     id: int
     title: str
     content: str
-    owner_id : int
+    user_id : int
     created_at: datetime 
 
 class PrivatePostResponse(PublicPostResponse):

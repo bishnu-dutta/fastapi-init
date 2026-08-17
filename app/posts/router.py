@@ -13,11 +13,11 @@ from .service import (
     delete_post_by_id
 )
 
-from app.users.helpers import async_session_dep
+from app.core.database import async_session_dep
 from app.auth.helpers import CurrentUser
 
 
-router = APIRouter(prefix="/posts", tags=["posts"])
+router = APIRouter(prefix="/user/post", tags=["posts"])
 
 @router.post("/create", response_model=PrivatePostResponse)
 async def create_post_api(
@@ -27,12 +27,19 @@ async def create_post_api(
 ):
     return await create_post(data, current_user, session)
 
-@router.get("/all", response_model=list[PublicPostResponse])
+@router.get("/all-posts", response_model=list[PublicPostResponse])
 async def get_all_posts_api(
     session: AsyncSession = async_session_dep
 ):
     return await get_all_posts(session)
 
+@router.get("/all", response_model=list[PrivatePostResponse])
+async def get_all_posts_of_user_api(
+    current_user: CurrentUser,
+    session: AsyncSession = async_session_dep
+):
+    return await get_all_posts_of_user(current_user, session)
+    
 @router.get("/{id}", response_model=PrivatePostResponse)
 async def get_post_by_id_api(
     id: int,
@@ -41,12 +48,6 @@ async def get_post_by_id_api(
 ):
     return await get_post_by_id(id, current_user, session)
 
-@router.get("/user/all", response_model=list[PrivatePostResponse])
-async def get_all_posts_of_user_api(
-    current_user: CurrentUser,
-    session: AsyncSession = async_session_dep
-):
-    return await get_all_posts_of_user(current_user, session)
 
 @router.put("/{id}", response_model=UpdatePrivatePostResponse)
 async def update_post_by_id_api(

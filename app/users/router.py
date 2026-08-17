@@ -11,7 +11,7 @@ from .service import (
     update_user,
 )
 
-from .helpers import async_session_dep
+from app.core.database import async_session_dep
 from app.auth.helpers import CurrentUser
 
 

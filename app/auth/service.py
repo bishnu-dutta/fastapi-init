@@ -1,7 +1,7 @@
 
 from cryptography.hazmat.primitives import asymmetric
 from app.auth.model import Token
-from app.auth.repository import find_by_email
+from app.auth.repository import find_by_username
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta, timezone
 
@@ -13,9 +13,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users import model
-from app.users.helpers import async_session_dep
+from app.core.database import async_session_dep
 
-from .model import Settings
+from app.core.config import Settings
 
 settings = Settings()
 
@@ -95,12 +95,12 @@ async def get_current_user(
 async def create_token(form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = async_session_dep
     ):
-    user = await find_by_email(form_data.username, session)
+    user = await find_by_username(form_data.username, session)
 
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

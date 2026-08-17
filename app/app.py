@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.users.router import router as users_router
-from app.users.helpers import create_tables
+from app.core.database import create_tables
 from app.auth.router import router as auth_router
 from app.posts.router import router as posts_router
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import joinedload
 from .request import CreatePostRequest, UpdatePostRequest
 from .model import Post
@@ -6,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def save_post_to_database(data: CreatePostRequest, current_user_id: int, session: AsyncSession):
     post = Post(
+        user_id=current_user_id,
         title=data.title,
         content=data.content,
-        user_id=current_user_id,
+        created_at=datetime.now(),
     )
     session.add(post)
     await session.commit()
@@ -36,6 +38,7 @@ async def update_post_by_id_in_database(id: int, data: UpdatePostRequest, sessio
             post.title = data.title
         if data.content is not None:
             post.content = data.content
+        post.updated_at = datetime.now()
         await session.commit()
         await session.refresh(post)
     return post

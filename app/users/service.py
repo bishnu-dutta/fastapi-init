@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.sql.annotation import Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .repository import (
     all_users,
@@ -13,14 +12,13 @@ from .repository import (
 )
 from .request import CreateUserRequest, UpdateUserRequest
 
-from .helpers import async_session_dep
 from app.auth.helpers import CurrentUser
 
 
 
 
 
-async def create_user(data: CreateUserRequest, session: AsyncSession = async_session_dep):
+async def create_user(data: CreateUserRequest, session: AsyncSession):
     existing_user = await find_user_by_email(data.email, session)
     if existing_user:
         raise HTTPException(
@@ -30,12 +28,12 @@ async def create_user(data: CreateUserRequest, session: AsyncSession = async_ses
     return await save_user_to_database(data, session)
 
 
-async def get_all_users(session: AsyncSession = async_session_dep):
+async def get_all_users(session: AsyncSession):
     users = await all_users(session)
     return users
 
 
-async def get_user_by_id(id: int, session: AsyncSession = async_session_dep):
+async def get_user_by_id(id: int, session: AsyncSession):
     user = await find_user_by_id(id, session)
     if not user:
         raise HTTPException(
@@ -45,7 +43,7 @@ async def get_user_by_id(id: int, session: AsyncSession = async_session_dep):
     return user
 
 
-async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession = async_session_dep):
+async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession):
     if id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -60,7 +58,7 @@ async def delete_user(id: int, current_user: CurrentUser,session: AsyncSession =
     return user
 
 
-async def update_user(id: int, current_user: CurrentUser, data: UpdateUserRequest, session: AsyncSession = async_session_dep):
+async def update_user(id: int, current_user: CurrentUser, data: UpdateUserRequest, session: AsyncSession):
     if id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
