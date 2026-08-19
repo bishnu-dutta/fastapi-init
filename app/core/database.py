@@ -1,11 +1,15 @@
-from sqlalchemy.orm import DeclarativeBase
 import os
 from collections.abc import AsyncGenerator
+
 from dotenv import load_dotenv
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
-
+'''
+we can also do 
+async_engine = create_async_engine(settings.database_url, echo=False)
+'''
 
 
 load_dotenv()
@@ -26,8 +30,8 @@ class Base(DeclarativeBase):
 
 # creating actual tables, base
 async def create_tables():
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await async_engine.dispose()
 
 
 # creating a local session for each request

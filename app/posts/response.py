@@ -1,6 +1,7 @@
-from pydantic import EmailStr
-from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr
+
 
 class PublicPostResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

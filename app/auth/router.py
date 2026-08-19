@@ -1,12 +1,12 @@
-from fastapi import status
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.users.response import PrivateUserResponse
-from .model import Token
-from .service import create_token, oauth2_scheme, get_current_auth_user
-from app.core.database import async_session_dep
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import async_session_dep
+from app.users.response import PrivateUserResponse
+
+from .model import Token
+from .service import create_token, get_current_auth_user, oauth2_scheme
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

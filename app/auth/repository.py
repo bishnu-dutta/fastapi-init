@@ -1,8 +1,7 @@
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from app.users.model import User
-
 
 
 async def find_by_username(username: str, session: AsyncSession) -> User | None:

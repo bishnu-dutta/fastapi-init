@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.helpers import CurrentUser
+from app.core.database import async_session_dep
 
 from .request import CreateUserRequest, UpdateUserRequest
 from .response import PrivateUserResponse, PublicUserResponse
@@ -10,10 +13,6 @@ from .service import (
     get_user_by_id,
     update_user,
 )
-
-from app.core.database import async_session_dep
-from app.auth.helpers import CurrentUser
-
 
 router = APIRouter(prefix="/users", tags=["users"])
 

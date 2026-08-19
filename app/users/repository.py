@@ -2,9 +2,10 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.service import hash_password
+
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
-from app.auth.service import hash_password
 
 
 async def save_user_to_database(data: CreateUserRequest, session: AsyncSession) -> User:

@@ -2,16 +2,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.users.router import router as users_router
-from app.core.database import create_tables
 from app.auth.router import router as auth_router
+from app.core.database import async_engine
 from app.posts.router import router as posts_router
+from app.users.router import router as users_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await create_tables()
     yield
+    await async_engine.dispose()
 
 
 app = FastAPI(lifespan=lifespan)

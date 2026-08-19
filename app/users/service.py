@@ -1,6 +1,7 @@
-from dotenv import load_dotenv
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.helpers import CurrentUser
 
 from .repository import (
     all_users,
@@ -11,11 +12,6 @@ from .repository import (
     update_user_by_id,
 )
 from .request import CreateUserRequest, UpdateUserRequest
-
-from app.auth.helpers import CurrentUser
-
-
-
 
 
 async def create_user(data: CreateUserRequest, session: AsyncSession):

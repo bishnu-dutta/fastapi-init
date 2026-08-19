@@ -1,9 +1,5 @@
 
-from cryptography.hazmat.primitives import asymmetric
-from app.auth.model import Token
-from app.auth.repository import find_by_username
-from fastapi.security import OAuth2PasswordRequestForm
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -12,11 +8,11 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.users import model
+from app.auth.model import Token
+from app.auth.repository import find_by_username
+from app.core.config import settings
 from app.core.database import async_session_dep
-from app.core.config import Settings
-
-settings = Settings()
+from app.users import model
 
 password_hash = PasswordHash.recommended()
 
@@ -32,9 +28,9 @@ def verify_password(password:str, hashed_password:str) -> bool:
 def create_access_token(data:dict, expire_delta:timedelta | None = None) -> str:
     to_encode = data.copy()
     if expire_delta:
-        expire_time = datetime.now(timezone.utc) + expire_delta
+        expire_time = datetime.now(UTC) + expire_delta
     else:
-        expire_time = datetime.now(timezone.utc) + timedelta(minutes = settings.access_token_expire_minutes)
+        expire_time = datetime.now(UTC) + timedelta(minutes = settings.access_token_expire_minutes)
     
     to_encode.update({"exp": expire_time})
     encoded_jwt = jwt.encode(

@@ -1,8 +1,8 @@
-from sqlalchemy.orm import Mapped
 from typing import TYPE_CHECKING
-from typing import List
-from sqlalchemy.orm import relationship
+
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import Mapped, relationship
+
 from app.core.database import Base
 
 if TYPE_CHECKING:
@@ -16,5 +16,5 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
 
-    posts : Mapped[List["Post"]] = relationship("Post", back_populates="owner_id", cascade="all, delete-orphan")
+    posts : Mapped[list[Post]] = relationship("Post", back_populates="owner_id", cascade="all, delete-orphan")
     

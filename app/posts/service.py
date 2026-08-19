@@ -1,18 +1,18 @@
-from email_validator import deliverability
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from .request import CreatePostRequest, UpdatePostRequest
-from .model import Post
-from .repository import (
-    save_post_to_database,
-    get_all_posts_from_database,
-    get_post_by_id_from_database,
-    update_post_by_id_in_database,
-    delete_post_by_id_from_database,
-    get_all_post_by_user_id_from_database
-)
 
 from app.auth.helpers import CurrentUser
+
+from .repository import (
+    delete_post_by_id_from_database,
+    get_all_post_by_user_id_from_database,
+    get_all_posts_from_database,
+    get_post_by_id_from_database,
+    save_post_to_database,
+    update_post_by_id_in_database,
+)
+from .request import CreatePostRequest, UpdatePostRequest
+
 
 async def create_post(data: CreatePostRequest, current_user: CurrentUser, session: AsyncSession):
     return await save_post_to_database(data, current_user.id, session)

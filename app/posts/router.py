@@ -1,21 +1,20 @@
-from app.posts.response import UpdatePrivatePostResponse
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.helpers import CurrentUser
+from app.core.database import async_session_dep
+from app.posts.response import UpdatePrivatePostResponse
 
 from .request import CreatePostRequest, UpdatePostRequest
 from .response import PrivatePostResponse, PublicPostResponse
 from .service import (
     create_post,
+    delete_post_by_id,
     get_all_posts,
     get_all_posts_of_user,
     get_post_by_id,
     update_post_by_id,
-    delete_post_by_id
 )
-
-from app.core.database import async_session_dep
-from app.auth.helpers import CurrentUser
-
 
 router = APIRouter(prefix="/user/post", tags=["posts"])
 
