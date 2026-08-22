@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import async_session_dep
 from app.users.response import PrivateUserResponse
 
-from .model import Token
+from .response import Token
 from .service import create_token, get_current_auth_user, oauth2_scheme
 
 router = APIRouter(prefix="/auth", tags=["auth"])

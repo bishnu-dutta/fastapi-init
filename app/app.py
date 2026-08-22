@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.auth.router import router as auth_router
 from app.core.database import async_engine
+from app.middleware import register_middleware
 from app.posts.router import router as posts_router
 from app.users.router import router as users_router
 
@@ -20,3 +21,4 @@ app.include_router(users_router)
 app.include_router(auth_router)
 app.include_router(posts_router)
 
+register_middleware(app)

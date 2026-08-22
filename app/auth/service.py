@@ -8,11 +8,12 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.model import Token
 from app.auth.repository import find_by_username
 from app.core.config import settings
 from app.core.database import async_session_dep
 from app.users import model
+
+from .response import Token
 
 password_hash = PasswordHash.recommended()
 
