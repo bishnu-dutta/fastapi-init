@@ -8,6 +8,8 @@ from app.middleware import register_middleware
 from app.posts.router import router as posts_router
 from app.users.router import router as users_router
 
+from app.core.exceptions import register_exception_handlers
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,3 +24,4 @@ app.include_router(auth_router)
 app.include_router(posts_router)
 
 register_middleware(app)
+register_exception_handlers(app)

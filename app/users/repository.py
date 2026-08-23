@@ -2,19 +2,42 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import datetime
+
 from app.auth.service import hash_password
+from app.utils.mail import get_otp_expiry, generate_otp
 
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
 
 
-async def save_user_to_database(data: CreateUserRequest, session: AsyncSession) -> User:
+async def save_user_to_database(data: CreateUserRequest, otp_hash: str, otp_expiry: datetime, session: AsyncSession) -> User:
     user = User(
         username=data.username,
         email=data.email.lower(),
         hashed_password=hash_password(data.password),
+        otp_hash=otp_hash,
+        otp_expiry=otp_expiry,
+        otp_attempts=0,
+        is_verified=False,
     )
     session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
+    return user
+
+    
+async def update_user_otp(
+    user: User,
+    otp_hash: str,
+    otp_expiry: datetime,
+    session: AsyncSession,
+    ) -> User:
+    
+    user.otp_hash = otp_hash
+    user.otp_expiry = otp_expiry
+    user.otp_attempts = 0
     await session.commit()
     await session.refresh(user)
     return user

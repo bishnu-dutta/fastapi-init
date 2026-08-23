@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.database import async_session_dep
 from app.users import model
 
+
 from .response import Token
 
 password_hash = PasswordHash.recommended()
@@ -100,6 +101,12 @@ async def create_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified. Please verify your email before logging in.",
+        )
 
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     
@@ -152,4 +159,7 @@ async def get_current_auth_user(
     
     return user
     
+
+
+
 

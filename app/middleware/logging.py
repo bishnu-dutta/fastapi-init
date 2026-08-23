@@ -22,9 +22,12 @@ def LoggingMiddleware(app:FastAPI):
         response = await call_next(request)
 
         process_time = time.perf_counter() - start_time
+        detail = getattr(request.state, "error_detail", None)
+
         message = f"Method: {request.method}\nURL: {request.url}\n" \
                   f"IP: {client_ip}\nPORT: {client_port}\n" \
                   f"STATUS: {response.status_code} {HTTPStatus(response.status_code).phrase}\n" \
+                  f"Message: {detail if detail else 'N/A'}\n" \
                   f"Time taken: {process_time} seconds\n"
 
         print(message)

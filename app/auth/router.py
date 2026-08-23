@@ -8,6 +8,8 @@ from app.users.response import PrivateUserResponse
 from .response import Token
 from .service import create_token, get_current_auth_user, oauth2_scheme
 
+
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/token", response_model=Token, include_in_schema=False)
@@ -31,4 +33,7 @@ async def get_current_user(
     session: AsyncSession = async_session_dep,
 ):  
     return await get_current_auth_user(token, session)
+
+
+
 
