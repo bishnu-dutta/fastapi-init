@@ -7,7 +7,7 @@ from app.auth.helpers import CurrentUser
 from app.core.database import async_session_dep
 
 from .request import CreateUserRequest, UpdateUserRequest
-from .response import PrivateUserResponse, PublicUserResponse
+from .response import PrivateUserResponse, PublicUserResponse, MessageResponse
 from .service import (
     create_user,
     delete_user,
@@ -30,6 +30,7 @@ async def create_user_api(data: CreateUserRequest, session: AsyncSession = async
     return await create_user(data, session)
 
 @router.post("/mail/verify-otp", 
+    response_model=MessageResponse,
     status_code=status.HTTP_200_OK,
     summary="Verify OTP",
     description="Verify OTP of a user"
@@ -38,6 +39,7 @@ async def verify_otp_api(data: OTPVerify, session: AsyncSession = async_session_
     return await verify_otp(data.email, data.otp, session)
 
 @router.post("/mail/resend-otp", 
+    response_model=MessageResponse,
     status_code=status.HTTP_200_OK, 
     summary="Resend verification OTP",
     description="Resends a new 6-digit OTP to the user's email if not already verified.")

@@ -32,8 +32,8 @@ async def create_user(data: CreateUserRequest, session: AsyncSession):
         )
     p_otp, h_otp = generate_otp()
     otp_expiry = get_otp_expiry(minutes=10)
-    user = await save_user_to_database(data, otp_hash=h_otp, otp_expiry=otp_expiry, session=session)
-    await send_otp_email(recipient_email=user.email, otp=p_otp)
+    user = await save_user_to_database(data, h_otp, otp_expiry, session)
+    await send_otp_email(user.email, p_otp)
     return user
 
 
@@ -113,17 +113,8 @@ async def resend_otp(email:str, session: AsyncSession):
     # Generate new OTP & hash
     p_otp, h_otp = generate_otp()
     otp_expiry = get_otp_expiry(minutes=10)
-    await update_user_otp(
-        user=user,
-        otp_hash=h_otp,
-        otp_expiry=otp_expiry,
-        session=session,
-    )
-    await send_otp_email(
-        recipient_email=user.email,
-        otp=p_otp,
-        subject="Your new verification code",
-    )
+    await update_user_otp(user,h_otp,otp_expiry,session)
+    await send_otp_email(user.email,p_otp,"Your new verification code")
     return {"message": "A new verification code has been sent to your email."}
 
 

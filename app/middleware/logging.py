@@ -27,7 +27,7 @@ def LoggingMiddleware(app:FastAPI):
         message = f"Method: {request.method}\nURL: {request.url}\n" \
                   f"IP: {client_ip}\nPORT: {client_port}\n" \
                   f"STATUS: {response.status_code} {HTTPStatus(response.status_code).phrase}\n" \
-                  f"Message: {detail if detail else 'N/A'}\n" \
+                  f"Message: {detail if detail else 'Successfully completed operation for endpoint'}\n" \
                   f"Time taken: {process_time} seconds\n"
 
         print(message)

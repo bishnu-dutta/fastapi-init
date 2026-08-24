@@ -28,13 +28,7 @@ async def save_user_to_database(data: CreateUserRequest, otp_hash: str, otp_expi
     return user
 
     
-async def update_user_otp(
-    user: User,
-    otp_hash: str,
-    otp_expiry: datetime,
-    session: AsyncSession,
-    ) -> User:
-    
+async def update_user_otp(user: User,otp_hash: str,otp_expiry: datetime,session: AsyncSession,) -> User:
     user.otp_hash = otp_hash
     user.otp_expiry = otp_expiry
     user.otp_attempts = 0

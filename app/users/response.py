@@ -9,5 +9,8 @@ class PublicUserResponse(BaseModel):
 class PrivateUserResponse(PublicUserResponse):
     email: EmailStr
 
+class MessageResponse(BaseModel):
+    message : str
+
 
     
