@@ -1,10 +1,10 @@
-from fastapi_mail import FastMail, ConnectionConfig
-from app.core.config import settings
 import secrets
+from datetime import UTC, datetime, timedelta
+
+from fastapi_mail import ConnectionConfig, FastMail
+
 from app.auth.service import hash_password
-from datetime import datetime, UTC, timedelta
-
-
+from app.core.config import settings
 
 mail_config = ConnectionConfig(
     MAIL_USERNAME = settings.MAIL_USERNAME,

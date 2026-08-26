@@ -1,15 +1,16 @@
+from datetime import UTC, datetime, timedelta
+
 from fastapi import HTTPException, status
+from fastapi_mail import MessageSchema, MessageType
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.helpers import CurrentUser
-
-from datetime import datetime, UTC, timedelta
-
-from app.auth.service import verify_password
+from app.auth.service import (
+    create_password_reset_token,
+    verify_password,
+    verify_reset_token,
+)
 from app.utils.mail import generate_otp, get_otp_expiry, mail
-
-from fastapi_mail import MessageSchema, MessageType
-
 
 from .repository import (
     all_users,
@@ -17,10 +18,11 @@ from .repository import (
     find_user_by_email,
     find_user_by_id,
     save_user_to_database,
+    update_password_by_email,
     update_user_by_id,
-    update_user_otp
+    update_user_otp,
 )
-from .request import CreateUserRequest, UpdateUserRequest
+from .request import CreateUserRequest, ResetPasswordRequest, UpdateUserRequest
 
 
 async def create_user(data: CreateUserRequest, session: AsyncSession):
@@ -164,3 +166,61 @@ async def update_user(current_user: CurrentUser, data: UpdateUserRequest, sessio
     return user
 
 
+async def send_forgot_password_link(email:str, session:AsyncSession):
+
+    reset_token = await create_password_reset_token(email,session)
+
+    reset_link = f"http://localhost:8000/users/reset-password/{reset_token}"
+
+    html_content = f"""
+    <h2>Reset Your Password</h2>
+    <p>Click the link below to set a new password. This link is valid for 15 minutes:</p>
+    <p><a href="{reset_link}" style="padding: 10px 16px; background-color: #2563eb; color: #fff; text-decoration: none; border-radius: 4px;">Reset Password</a></p>
+    <p>If you didn't request this, you can safely ignore this email.</p>
+    """
+
+    message = MessageSchema(
+        subject="Password Reset Request",
+        recipients=[email],
+        body=html_content,
+        subtype=MessageType.html,
+    )
+    await mail.send_message(message)
+
+    return {"message" : "A password reset link has been sent."}
+
+
+async def reset_password_with_token(token:str, passwords:ResetPasswordRequest, session:AsyncSession):
+    mail_ID = await verify_reset_token(token, session)
+
+    if not mail_ID:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token",
+        )
+
+    user_mail = await find_user_by_email(mail_ID, session)
+    
+    if not user_mail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Mail not found",
+        )
+    
+    if not user_mail.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account is not verified",
+        )
+
+    new_password = passwords.new_password
+    confirm_password = passwords.confirm_password
+
+    if new_password != confirm_password:
+        raise HTTPException(
+            detail="Passwords do not match", status_code=status.HTTP_400_BAD_REQUEST
+        )
+        
+    await update_password_by_email(user_mail, new_password, session)
+
+    return {"message" : "Password reset successfully"}

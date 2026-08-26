@@ -1,11 +1,11 @@
 
+from datetime import datetime
+
+from pydantic import EmailStr
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from datetime import datetime
-
 from app.auth.service import hash_password
-from app.utils.mail import get_otp_expiry, generate_otp
 
 from .model import User
 from .request import CreateUserRequest, UpdateUserRequest
@@ -73,3 +73,12 @@ async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSess
         await session.commit()
         await session.refresh(user)
     return user
+
+async def update_password_by_email(user_mail: EmailStr, password: str, session: AsyncSession) -> User | None:
+    user_mail.hashed_password = hash_password(password)
+    await session.commit()
+    await session.refresh(user_mail)
+    return user_mail
+
+
+    

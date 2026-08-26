@@ -18,3 +18,10 @@ class OTPVerify(BaseModel):
 
 class ResendOTPRequest(BaseModel):
     email: EmailStr
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    new_password: str
+    confirm_password: str

@@ -11,3 +11,10 @@ async def find_by_username(username: str, session: AsyncSession) -> User | None:
         )
     )
     return results.scalars().first()
+
+
+async def find_by_email(email:str, session:AsyncSession) -> User | None:
+    result = await session.execute(
+        select(User).where(User.email == email)
+    )
+    return result.scalars().first()

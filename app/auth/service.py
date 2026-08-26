@@ -8,11 +8,10 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.repository import find_by_username
+from app.auth.repository import find_by_email, find_by_username
 from app.core.config import settings
 from app.core.database import async_session_dep
 from app.users import model
-
 
 from .response import Token
 
@@ -34,7 +33,7 @@ def create_access_token(data:dict, expire_delta:timedelta | None = None) -> str:
     else:
         expire_time = datetime.now(UTC) + timedelta(minutes = settings.access_token_expire_minutes)
     
-    to_encode.update({"exp": expire_time})
+    to_encode.update({"exp": expire_time, "scope":"access_token"})
     encoded_jwt = jwt.encode(
         to_encode, 
         settings.secret_key.get_secret_value(), 
@@ -51,6 +50,10 @@ def verify_access_token(token: str) -> bool:
             algorithms=[settings.algorithm],
             options = {"require": ["exp", "sub"]}
         )
+
+        if payload.get("scope") != "access_token":
+            return None
+        
     except jwt.InvalidTokenError:
         return None
     else:
@@ -88,7 +91,8 @@ async def get_current_user(
         )
     return user
 
-
+# We are create token in two types just for example. 1. with id,  2. with email. 
+# 1. here we are creating tokens using id as one of payload
 async def create_token(
     form_data,
     session: AsyncSession = async_session_dep
@@ -161,5 +165,45 @@ async def get_current_auth_user(
     
 
 
+# 2. here we are creating tokens using email as one of payload
+async def create_password_reset_token(email, session: AsyncSession) -> str:
+    mail = await find_by_email(email, session)
+    if not mail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )   
+    if not mail.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not verified",
+        )
+    
+    expire_time = datetime.now(UTC) + timedelta(minutes=15)
 
+    payload = {
+        "sub": str(mail.email),
+        "exp": expire_time,
+        "scope": "password_reset",
+    }
+    reset_token = jwt.encode(
+        payload,
+        settings.secret_key.get_secret_value(),
+        algorithm=settings.algorithm,
+    )
+    return reset_token
 
+async def verify_reset_token(token:str, session:AsyncSession):
+    try:
+        payload = jwt.decode(
+            token, 
+            settings.secret_key.get_secret_value(), 
+            algorithms=[settings.algorithm],
+            options = {"require": ["exp", "sub"]}
+        )
+        if payload.get("scope") != "password_reset":
+            return None
+    except jwt.InvalidTokenError:
+        return None
+    else:
+        return payload.get("sub")

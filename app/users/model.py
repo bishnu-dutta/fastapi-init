@@ -1,9 +1,8 @@
-from sqlalchemy.orm import mapped_column
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Integer, String, DateTime, Boolean
-from datetime import datetime
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 

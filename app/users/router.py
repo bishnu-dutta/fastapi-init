@@ -1,18 +1,26 @@
-from app.users.service import verify_otp, resend_otp
-from .request import OTPVerify, ResendOTPRequest
 from fastapi import APIRouter, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.helpers import CurrentUser
 from app.core.database import async_session_dep
+from app.users.service import resend_otp, verify_otp
 
-from .request import CreateUserRequest, UpdateUserRequest
-from .response import PrivateUserResponse, PublicUserResponse, MessageResponse
+from .request import (
+    CreateUserRequest,
+    ForgotPasswordRequest,
+    OTPVerify,
+    ResendOTPRequest,
+    ResetPasswordRequest,
+    UpdateUserRequest,
+)
+from .response import MessageResponse, PrivateUserResponse, PublicUserResponse
 from .service import (
     create_user,
     delete_user,
     get_all_users,
     get_user_by_id,
+    reset_password_with_token,
+    send_forgot_password_link,
     update_user,
 )
 
@@ -87,4 +95,20 @@ async def update_user_api(data: UpdateUserRequest, current_user: CurrentUser, se
     return await update_user(current_user, data, session)
 
 
+@router.post("/forgot-password", 
+    response_model=MessageResponse, 
+    status_code=status.HTTP_200_OK, 
+    summary="request password reset", 
+    description="Forgot password of a user, sends a password reset link to the user's email if verified"
+)
+async def forgot_password_api(data: ForgotPasswordRequest, session: AsyncSession = async_session_dep):
+    return await send_forgot_password_link(data.email, session)
 
+
+@router.post("/reset-password/{token}",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,summary="Reset password",
+    description="Reset password of a user if the user is verified and token is valid"
+)
+async def reset_password_api(token:str, data: ResetPasswordRequest, session: AsyncSession = async_session_dep):
+    return await reset_password_with_token(token, data, session)
