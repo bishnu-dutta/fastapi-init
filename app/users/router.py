@@ -24,6 +24,9 @@ from .service import (
     update_user,
 )
 
+from app.middleware.role_scope import admin_role
+
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -59,7 +62,7 @@ async def resend_otp_api(data: ResendOTPRequest, session: AsyncSession = async_s
     response_model=list[PublicUserResponse],
     status_code=status.HTTP_200_OK,
     summary="Get all users",
-    description="Get all list of users from database(only public accessible data)"
+    description="Get all list of users from database(only public accessible data)",
 )
 async def get_all_users_api(session: AsyncSession = async_session_dep):
     return await get_all_users(session)

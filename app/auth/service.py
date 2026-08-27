@@ -59,37 +59,6 @@ def verify_access_token(token: str) -> bool:
     else:
         return payload.get("sub")
 
-async def get_current_user(
-    token:str = Depends(oauth2_scheme), 
-    session: AsyncSession = async_session_dep):
-    
-    # decode and returns 
-    user_id = verify_access_token(token)
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    try:
-        user_id_int = int(user_id)
-    except(TypeError, ValueError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    result = await session.execute(
-        select(model.User).where(model.User.id == user_id_int)
-    )
-    user = result.scalars().first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
 
 # We are create token in two types just for example. 1. with id,  2. with email. 
 # 1. here we are creating tokens using id as one of payload
