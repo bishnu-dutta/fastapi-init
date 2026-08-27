@@ -1,4 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
+import uuid
+from app.posts.response import PublicPostResponse
 
 
 class PublicUserResponse(BaseModel):
@@ -8,6 +10,10 @@ class PublicUserResponse(BaseModel):
     
 class PrivateUserResponse(PublicUserResponse):
     email: EmailStr
+    organization_id: uuid.UUID
+    role: str
+    organization_name: str | None
+    all_posts: list[PublicPostResponse] = []
 
 class MessageResponse(BaseModel):
     message : str

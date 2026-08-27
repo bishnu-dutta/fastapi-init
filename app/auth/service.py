@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.auth.repository import find_by_email, find_by_username
 from app.core.config import settings
@@ -151,7 +152,12 @@ async def get_current_auth_user(
 
     # db query need to resolve it later
     result = await session.execute(
-        select(model.User).where(model.User.id == user_id_int)
+        select(model.User)
+        .options(
+            selectinload(model.User.organization),
+            selectinload(model.User.posts)
+        )
+        .where(model.User.id == user_id_int)
     )
     user = result.scalars().first()
     if not user:

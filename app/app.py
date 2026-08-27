@@ -8,6 +8,7 @@ from app.core.exceptions import register_exception_handlers
 from app.middleware import register_middleware
 from app.posts.router import router as posts_router
 from app.users.router import router as users_router
+import app.organizations.model 
 
 
 @asynccontextmanager
