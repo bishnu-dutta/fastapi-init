@@ -37,9 +37,9 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(String, index=True, default=UserRole.USER, nullable=False)
     organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.uid"), nullable=False)
 
-    organization: Mapped[Organization] = relationship("Organization", back_populates="user_org")
+    organization: Mapped[Organization] = relationship("Organization", back_populates="user_org", lazy ="selectin")
     
-    posts : Mapped[list[Post]] = relationship("Post", back_populates="owner_id", cascade="all, delete-orphan")
+    posts : Mapped[list[Post]] = relationship("Post", back_populates="owner_id", cascade="all, delete-orphan", lazy ="selectin")
     
     @property
     def organization_name(self) -> str | None:

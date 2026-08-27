@@ -1,11 +1,14 @@
 
 from pydantic import BaseModel, EmailStr, Field
+import uuid
 
 
 class CreateUserRequest(BaseModel):
     username: str
     email: EmailStr
     password: str 
+    organization_id: uuid.UUID
+    role: str
 
 class UpdateUserRequest(BaseModel):
     username: str | None = None

@@ -20,10 +20,12 @@ async def save_user_to_database(data: CreateUserRequest, otp_hash: str, otp_expi
         otp_expiry=otp_expiry,
         otp_attempts=0,
         is_verified=False,
+        organization_id=data.organization_id,
+        role=data.role
     )
     session.add(user)
     await session.commit()
-    await session.refresh(user)
+    await session.refresh(user, attribute_names=["organization", "posts"])
 
     return user
 
@@ -33,7 +35,7 @@ async def update_user_otp(user: User,otp_hash: str,otp_expiry: datetime,session:
     user.otp_expiry = otp_expiry
     user.otp_attempts = 0
     await session.commit()
-    await session.refresh(user)
+    await session.refresh(user, attribute_names=["organization", "posts"])
     return user
 
 
@@ -71,13 +73,13 @@ async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSess
         if data.password is not None:
             user.hashed_password = hash_password(data.password)
         await session.commit()
-        await session.refresh(user)
+        await session.refresh(user, attribute_names=["organization", "posts"])
     return user
 
 async def update_password_by_email(user_mail: EmailStr, password: str, session: AsyncSession) -> User | None:
     user_mail.hashed_password = hash_password(password)
     await session.commit()
-    await session.refresh(user_mail)
+    await session.refresh(user_mail, attribute_names=["organization", "posts"])
     return user_mail
 
 
