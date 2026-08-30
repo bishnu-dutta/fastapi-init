@@ -24,9 +24,6 @@ from .service import (
     update_user,
 )
 
-from app.middleware.role_scope import admin_role
-
-
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -64,8 +61,8 @@ async def resend_otp_api(data: ResendOTPRequest, session: AsyncSession = async_s
     summary="Get all users",
     description="Get all list of users from database(only public accessible data)",
 )
-async def get_all_users_api(session: AsyncSession = async_session_dep):
-    return await get_all_users(session)
+async def get_all_users_api(current_user: CurrentUser, session: AsyncSession = async_session_dep):
+    return await get_all_users(current_user, session)
 
 
 @router.get("/{id}", 
@@ -74,8 +71,8 @@ async def get_all_users_api(session: AsyncSession = async_session_dep):
     summary="Get a user by id",
     description="Get a user by id from database(only public accessible data)"
 )
-async def get_user_by_id_api(id: int, session: AsyncSession = async_session_dep):
-    return await get_user_by_id(id, session)
+async def get_user_by_id_api(id: int, current_user: CurrentUser, session: AsyncSession = async_session_dep):
+    return await get_user_by_id(id, current_user, session)
 
 
 @router.delete("/delete", 

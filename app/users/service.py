@@ -121,13 +121,18 @@ async def resend_otp(email:str, session: AsyncSession):
 
 
 
-async def get_all_users(session: AsyncSession):
-    users = await all_users(session)
+async def get_all_users(current_user: CurrentUser, session: AsyncSession):
+    users = await all_users(session, current_user.organization_id)
+    if not users:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Users not found",
+        )
     return users
 
 
-async def get_user_by_id(id: int, session: AsyncSession):
-    user = await find_user_by_id(id, session)
+async def get_user_by_id(id: int, current_user: CurrentUser, session: AsyncSession):
+    user = await find_user_by_id(id, session, current_user.organization_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -142,7 +147,7 @@ async def delete_user(current_user: CurrentUser,session: AsyncSession):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to delete this user",
         )
-    user = await delete_user_by_id(current_user.id, session)
+    user = await delete_user_by_id(current_user.id, session, current_user.organization_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -157,7 +162,7 @@ async def update_user(current_user: CurrentUser, data: UpdateUserRequest, sessio
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to update this user",
         )
-    user = await update_user_by_id(current_user.id, data, session)
+    user = await update_user_by_id(current_user.id, data, session, current_user.organization_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

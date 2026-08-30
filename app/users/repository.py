@@ -1,4 +1,5 @@
 
+import uuid
 from datetime import datetime
 
 from pydantic import EmailStr
@@ -39,31 +40,38 @@ async def update_user_otp(user: User,otp_hash: str,otp_expiry: datetime,session:
     return user
 
 
-async def find_user_by_email(email: str, session: AsyncSession) -> User | None:
-    result = await session.execute(select(User).where(func.lower(User.email) == email.lower()))
+async def find_user_by_email(email:EmailStr , session: AsyncSession) -> User | None:
+    query = select(User).where(func.lower(User.email) == email.lower())
+    result = await session.execute(query)
     return result.scalars().first()
 
 
-async def all_users(session: AsyncSession) -> list[User]:
-    result = await session.execute(select(User))
+async def all_users(session: AsyncSession, org_id: uuid.UUID | None = None) -> list[User]:
+    query = select(User)
+    if org_id:
+        query = query.where(User.organization_id == org_id)
+    result = await session.execute(query)
     return list(result.scalars().all())
 
 
-async def find_user_by_id(id: int, session: AsyncSession) -> User | None:
-    result = await session.execute(select(User).where(User.id == id))
+async def find_user_by_id(id: int, session: AsyncSession, org_id:uuid.UUID | None = None) -> User | None:
+    query = select(User).where(User.id == id)
+    if org_id:
+        query = query.where(User.organization_id == org_id)
+    result = await session.execute(query)
     return result.scalars().first()
 
 
-async def delete_user_by_id(id: int, session: AsyncSession) -> User | None:
-    user = await find_user_by_id(id, session)
+async def delete_user_by_id(id: int, session: AsyncSession, org_id:uuid.UUID | None = None) -> User | None:
+    user = await find_user_by_id(id, session, org_id)
     if user:
         await session.delete(user)
         await session.commit()
     return user
 
 
-async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSession) -> User | None:
-    user = await find_user_by_id(id, session)
+async def update_user_by_id(id: int, data: UpdateUserRequest, session: AsyncSession, org_id:uuid.UUID | None = None) -> User | None:
+    user = await find_user_by_id(id, session, org_id)
     if user:
         if data.username is not None:
             user.username = data.username

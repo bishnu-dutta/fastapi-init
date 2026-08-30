@@ -1,10 +1,12 @@
 
 import uuid
-from sqlalchemy import Uuid, String
+
+from sqlalchemy import String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.users.model import User
 
 from app.core.database import Base
+from app.users.model import User
+
 
 class Organization(Base):
     __tablename__ = "organizations"

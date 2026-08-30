@@ -18,8 +18,8 @@ async def create_post(data: CreatePostRequest, current_user: CurrentUser, sessio
     return await save_post_to_database(data, current_user.id, session)
     
 
-async def get_all_posts(session: AsyncSession):
-    posts = await get_all_posts_from_database(session)
+async def get_all_posts(current_user: CurrentUser, session: AsyncSession):
+    posts = await get_all_posts_from_database(session, current_user.organization_id)
     if not posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -28,7 +28,7 @@ async def get_all_posts(session: AsyncSession):
     return posts
 
 async def get_all_posts_of_user(current_user: CurrentUser, session: AsyncSession):
-    posts = await get_all_post_by_user_id_from_database(current_user.id, session)
+    posts = await get_all_post_by_user_id_from_database(current_user.id, session, current_user.organization_id)
     if not posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -37,7 +37,7 @@ async def get_all_posts_of_user(current_user: CurrentUser, session: AsyncSession
     return posts
 
 async def get_post_by_id(id: int, current_user: CurrentUser, session: AsyncSession):
-    post = await get_post_by_id_from_database(id, session)
+    post = await get_post_by_id_from_database(id, session, current_user.organization_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -51,7 +51,7 @@ async def get_post_by_id(id: int, current_user: CurrentUser, session: AsyncSessi
     return post
 
 async def update_post_by_id(id: int, current_user: CurrentUser, data: UpdatePostRequest, session: AsyncSession):
-    post = await get_post_by_id_from_database(id, session)
+    post = await get_post_by_id_from_database(id, session, current_user.organization_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -62,7 +62,7 @@ async def update_post_by_id(id: int, current_user: CurrentUser, data: UpdatePost
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to update this post",
         )
-    post = await update_post_by_id_in_database(id, data, session)
+    post = await update_post_by_id_in_database(id, data, session, current_user.organization_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -71,7 +71,7 @@ async def update_post_by_id(id: int, current_user: CurrentUser, data: UpdatePost
     return post
 
 async def delete_post_by_id(id: int, current_user: CurrentUser, session: AsyncSession):
-    post = await get_post_by_id_from_database(id, session)
+    post = await get_post_by_id_from_database(id, session, current_user.organization_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -82,7 +82,7 @@ async def delete_post_by_id(id: int, current_user: CurrentUser, session: AsyncSe
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to delete this post",
         )
-    post = await delete_post_by_id_from_database(id, session)
+    post = await delete_post_by_id_from_database(id, session, current_user.organization_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

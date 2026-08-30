@@ -38,9 +38,10 @@ async def create_post_api(
     description="Get all posts from all users(only public accessible data)"
     )
 async def get_all_posts_api(
-    session: AsyncSession = async_session_dep
+    current_user: CurrentUser,
+    session: AsyncSession = async_session_dep,
 ):
-    return await get_all_posts(session)
+    return await get_all_posts(current_user, session)
 
 @router.get("/all", 
     response_model=list[PrivatePostResponse],

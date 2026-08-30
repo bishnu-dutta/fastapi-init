@@ -1,16 +1,16 @@
-from enum import StrEnum
+import uuid
 from datetime import datetime
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
-import uuid
-from sqlalchemy import Boolean, DateTime, Integer, String, ForeignKey
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
 if TYPE_CHECKING:
-    from app.posts.model import Post
     from app.organizations.model import Organization
+    from app.posts.model import Post
     
 
 
@@ -46,5 +46,5 @@ class User(Base):
         return self.organization.name if self.organization else None
     
     @property
-    def all_posts(self) -> list["Post"]:
+    def all_posts(self) -> list[Post]:
         return self.posts

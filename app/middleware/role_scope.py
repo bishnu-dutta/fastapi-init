@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+
 from fastapi import Depends, HTTPException, status
 
 from app.auth.helpers import CurrentUser
@@ -18,4 +19,4 @@ class RoleChecker:
         )
 
 
-admin_role = Depends(RoleChecker([UserRole.ORG_ADMIN]))
+admin = Depends(RoleChecker([UserRole.ORG_ADMIN]))
