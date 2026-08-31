@@ -53,7 +53,7 @@ async def update_post_by_id_in_database(id: int, data: UpdatePostRequest, sessio
             post.content = data.content
         post.updated_at = datetime.now(UTC)
         await session.commit()
-        await session.refresh(post)
+        await session.refresh(post, attribute_names=["owner_id"])
     return post
 
 async def delete_post_by_id_from_database(id: int, session: AsyncSession, org_id: uuid.UUID | None = None) -> Post | None:

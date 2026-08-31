@@ -16,7 +16,7 @@ class Post(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    owner_id : Mapped[User] = relationship("User", back_populates="posts")
+    owner_id : Mapped[User] = relationship("User", back_populates="posts", lazy="selectin")
 
     @property
     def author(self) -> str | None:

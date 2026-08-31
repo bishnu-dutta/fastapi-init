@@ -27,12 +27,17 @@ async def get_all_posts(current_user: CurrentUser, session: AsyncSession):
         )
     return posts
 
-async def get_all_posts_of_user(current_user: CurrentUser, session: AsyncSession):
-    posts = await get_all_post_by_user_id_from_database(current_user.id, session, current_user.organization_id)
+async def get_all_posts_of_user(id:int, current_user: CurrentUser, session: AsyncSession):
+    posts = await get_all_post_by_user_id_from_database(id, session, current_user.organization_id)
     if not posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No posts found",
+        )
+    if posts.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to get this post",
         )
     return posts
 
